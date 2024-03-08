@@ -10,7 +10,7 @@ I am developing this audio plugin to further my understanding and knowledge of D
 
 My signal path is a basic chain to emulate the distortion of guitar amplifiers. I may revisit this chain when I get a better understanding of the whole idea.
 
-I suggest checking out both [1] and [2] to get an idea of the process.
+I suggest checking out both [Fractal Audio Systems whitepaper on guitar tone][1] and [Digital modeling of guitar amplifier preamp distortion][2] to get an idea of the process.
 
 **Signal path:** Input gain &rarr Noise gate &rarr PreEQ &rarr Distortion section &rarr Compression section &rarr PostEQ &rarr Mix &rarr Output gain
 
@@ -41,5 +41,8 @@ At some point I will put the mathematical formulas/graphs of how every single wa
 
 ### Distortion theory
 
-* [1]: <https://www.fractalaudio.com/downloads/manuals/axe-fx-2/Fractal-Audio-Systems-MIMIC-(tm)-Technology.pdf> "Fractal Audio Systems whitepaper on guitar tone"
-* [2]: <https://www.ampbooks.com/mobile/dsp/preamp/> "Digital modeling of guitar amplifier preamp distortion"
+* [Fractal Audio Systems whitepaper on guitar tone](https://www.fractalaudio.com/downloads/manuals/axe-fx-2/Fractal-Audio-Systems-MIMIC-(tm)-Technology.pdf)
+* [Digital modeling of guitar amplifier preamp distortion](https://www.ampbooks.com/mobile/dsp/preamp/)
+
+[1]: <https://www.fractalaudio.com/downloads/manuals/axe-fx-2/Fractal-Audio-Systems-MIMIC-(tm)-Technology.pdf> "Fractal Audio Systems whitepaper on guitar tone"
+[2]: <https://www.ampbooks.com/mobile/dsp/preamp/> "Digital modeling of guitar amplifier preamp distortion"
