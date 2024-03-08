@@ -61,6 +61,11 @@ public:
     
     //=============== MY STUFF =====================================================
     juce::AudioProcessorValueTreeState state;
+    void parameterChanged(const juce::String& parameterID, float newVal);
+    int getPosFunc();
+    int getNegFunc();
+    void setPosFunc(int newVal);
+    void setNegFunc(int newVal);
 
 private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParams();

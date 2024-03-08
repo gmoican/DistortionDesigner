@@ -119,15 +119,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
     
     // Parameters in Distortion section
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DRIVE", "Drive Gain", juce::NormalisableRange<float>(-18.0f, 30.0f, 0.1f), DEFAULT_DRIVE, "dB"));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("BIAS", "Drive Bias", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.1f), DEFAULT_BIAS, ""));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("BIAS", "Drive Bias", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.01f), DEFAULT_BIAS, ""));
     params.push_back(std::make_unique<juce::AudioParameterBool>("SYM", "Drive Symetry", true));
     
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("POS_CORR", "Positive Drive Correction", juce::NormalisableRange<float>(0.0f, 1.0f, 0.1f), DEFAULT_CORR, ""));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("NEG_CORR", "Negative Drive Correction", juce::NormalisableRange<float>(0.0f, 1.0f, 0.1f), DEFAULT_CORR, ""));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("POS_CORR", "Positive Drive Correction", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), DEFAULT_CORR, ""));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("NEG_CORR", "Negative Drive Correction", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), DEFAULT_CORR, ""));
     params.push_back(std::make_unique<juce::AudioParameterInt>("POS_FUNC", "Positive Drive Function", 0, 5, DEFAULT_FUNC));
     params.push_back(std::make_unique<juce::AudioParameterInt>("NEG_FUNC", "Negative Drive Function", 0, 5, DEFAULT_FUNC));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("POS_FX", "Positive Drive Custom f(x)", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.1f), DEFAULT_FX, ""));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("NEG_FX", "Negative Drive Custom f(x)", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.1f), DEFAULT_FX, ""));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("POS_FX", "Positive Drive Custom f(x)", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.01f), DEFAULT_FX, ""));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("NEG_FX", "Negative Drive Custom f(x)", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.01f), DEFAULT_FX, ""));
     
     // Parameters in Compression section
     params.push_back(std::make_unique<juce::AudioParameterBool>("COMP_ON", "Comp On/Off", true));
@@ -454,6 +454,13 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new PluginProcessor();
 }
+
+// ========== GETTERS & SETTERS USED IN THE EDITOR =============================
+int PluginProcessor::getPosFunc() { return posFunc; }
+int PluginProcessor::getNegFunc() { return negFunc; }
+
+void PluginProcessor::setPosFunc(int newVal) { posFunc = newVal; }
+void PluginProcessor::setNegFunc(int newVal) { negFunc = newVal; }
 
 // ========== DRIVE MATH FUNCTIONS =============================================
 float PluginProcessor::softClipping(float sample)
