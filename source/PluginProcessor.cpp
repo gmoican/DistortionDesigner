@@ -106,7 +106,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
     // Parameters in PreEQ section
     params.push_back(std::make_unique<juce::AudioParameterBool>("PRE_ON", "PreEQ On/Off", true));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("PRE_HPF", "PreEQ HPF", juce::NormalisableRange<float>(10.0f, 200.0f, 0.1f), DEFAULT_HPF, "Hz"));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("PRE_LPF", "PreEQ LPF", juce::NormalisableRange<float>(4500.0f, 20000.0f, 0.1f), DEFAULT_LPF, "Hz"));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("PRE_LPF", "PreEQ LPF", juce::NormalisableRange<float>(2000.0f, 20000.0f, 0.1f), DEFAULT_LPF, "Hz"));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("PRE_LOW_GAIN", "PreEQ Low Gain", juce::NormalisableRange<float>(-12.0f, 12.0f, 0.1f), 0, "dB"));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("PRE_LOW_FREQ", "PreEQ Low Freq", juce::NormalisableRange<float>(60.0f, 200.0f, 0.1f), DEFAULT_LOW_FREQ, "Hz"));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("PRE_LOW_Q", "PreEQ Low Q", juce::NormalisableRange<float>(0.5f, 4.0f, 0.1f), DEFAULT_Q, ""));
@@ -139,7 +139,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
     // Parameters in PostEQ section
     params.push_back(std::make_unique<juce::AudioParameterBool>("POST_ON", "PostEQ On/Off", true));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("POST_HPF", "PostEQ HPF", juce::NormalisableRange<float>(10.0f, 200.0f, 0.1f), DEFAULT_HPF, "Hz"));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("POST_LPF", "PostEQ LPF", juce::NormalisableRange<float>(4500.0f, 20000.0f, 0.1f), DEFAULT_LPF, "Hz"));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("POST_LPF", "PostEQ LPF", juce::NormalisableRange<float>(2000.0f, 20000.0f, 0.1f), DEFAULT_LPF, "Hz"));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("POST_LOW_GAIN", "PostEQ Low Gain", juce::NormalisableRange<float>(-12.0f, 12.0f, 0.1f), 0, "dB"));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("POST_LOW_FREQ", "PostEQ Low Freq", juce::NormalisableRange<float>(60.0f, 200.0f, 0.1f), DEFAULT_LOW_FREQ, "Hz"));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("POST_LOW_Q", "PostEQ Low Q", juce::NormalisableRange<float>(0.5f, 4.0f, 0.1f), DEFAULT_Q, ""));
@@ -456,11 +456,13 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 }
 
 // ========== GETTERS & SETTERS USED IN THE EDITOR =============================
+/*
 int PluginProcessor::getPosFunc() { return posFunc; }
 int PluginProcessor::getNegFunc() { return negFunc; }
 
 void PluginProcessor::setPosFunc(int newVal) { posFunc = newVal; }
 void PluginProcessor::setNegFunc(int newVal) { negFunc = newVal; }
+*/
 
 // ========== DRIVE MATH FUNCTIONS =============================================
 float PluginProcessor::softClipping(float sample)
@@ -496,17 +498,9 @@ float PluginProcessor::customClipping(float sample, float driveVal, float fxVal)
 // This function manages all the previous drive functions in the processor
 float PluginProcessor::shapeBlender(float sample)
 {
-    if (symOn)
-    {
-        negFunc = posFunc;
-        negCorr = posCorr;
-        negFx = posFx;
-    }
-    
     float processedSample;
     
-    if (sample >= 0)
-    {
+    if (sample >= 0) {
         switch (posFunc) {
             case 0:
                 processedSample = softClipping(sample);
@@ -539,8 +533,7 @@ float PluginProcessor::shapeBlender(float sample)
         
         sample *= posCorr;
         
-    } else
-    {
+    } else {
         switch (negFunc) {
             case 0:
                 processedSample = softClipping(sample);

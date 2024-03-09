@@ -3,12 +3,14 @@
 #include "PluginProcessor.h"
 #include "BinaryData.h"
 // DELETE WHEN PLUGIN FINISHED
+#ifndef NDEBUG
 #include "melatonin_inspector/melatonin_inspector.h"
+#endif
 
 #define DEG2RADS 0.0174533f
 
 //==============================================================================
-class PluginEditor : public juce::AudioProcessorEditor, public juce::Button::Listener
+class PluginEditor : public juce::AudioProcessorEditor, public juce::Button::Listener, public juce::Slider::Listener
 {
 public:
     explicit PluginEditor (PluginProcessor&);
@@ -21,11 +23,15 @@ public:
     //=================== PARAMETER MANIPULATION UTILS =============================
     void setSliderComponent(juce::Slider& slider, std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>& sliderAttachment, juce::String paramName, juce::String style);
     
+    void setHiddenSliderComponent(juce::Slider& slider, std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>& sliderAttachment, juce::String paramName);
+    
     void setToggleComponent(juce::ToggleButton& button, std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>& buttonAttachment, juce::String paramName);
     
     void setButtonComponent(juce::TextButton& button);
     
     void buttonClicked(juce::Button* button) override;
+    
+    void sliderValueChanged(juce::Slider* slider) override;
     
     float rotationRadians (float actualVal, float minVal, float maxVal);
     
@@ -109,6 +115,9 @@ private:
     juce::TextButton posSinFoldButton;
     juce::TextButton posCustomButton;
     
+    juce::Slider posFuncHiddenSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> posFuncHiddenSliderAttachment;
+    
     /*
     juce::ToggleButton posSoftButton;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> posSoftButtonAttachment;
@@ -142,6 +151,9 @@ private:
     juce::TextButton negTanhButton;
     juce::TextButton negSinFoldButton;
     juce::TextButton negCustomButton;
+    
+    juce::Slider negFuncHiddenSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> negFuncHiddenSliderAttachment;
     
     /*
     juce::ToggleButton negSoftButton;
@@ -230,7 +242,9 @@ private:
     PluginProcessor& processorRef;
     
     // DELETE WHEN PLUGIN FINISHED
+    #ifndef NDEBUG
     std::unique_ptr<melatonin::Inspector> inspector;
     juce::TextButton inspectButton { "Inspect the UI" };
+    #endif
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };

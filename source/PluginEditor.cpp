@@ -5,6 +5,7 @@ PluginEditor::PluginEditor (PluginProcessor& p)
 {
     juce::ignoreUnused (processorRef);
 
+    #ifndef NDEBUG
     addAndMakeVisible (inspectButton);
 
     // this chunk of code instantiates and opens the melatonin inspector
@@ -16,6 +17,7 @@ PluginEditor::PluginEditor (PluginProcessor& p)
         }
 
         inspector->setVisible (true);
+    #endif
     };
 
     // ================= PARAMETER CONTROLS ========================================
@@ -52,6 +54,18 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     setSliderComponent(posCorrKnob, posCorrKnobAttachment, "POS_CORR", "Rot");
     setSliderComponent(posFxKnob, posFxKnobAttachment, "POS_FX", "Rot");
     
+    // Distortion negative voltage parameters
+    setSliderComponent(negCorrKnob, negCorrKnobAttachment, "NEG_CORR", "Rot");
+    setSliderComponent(negFxKnob, negFxKnobAttachment, "NEG_FX", "Rot");
+    
+    // Listeners
+    driveSymKnob.addListener(this);
+    posFxKnob.addListener(this);
+    negFxKnob.addListener(this);
+    
+    // =========== DISTORTION FUNCTION BUTTONS LOGIC ===============================
+    // TODO: Func buttons change the processor->func values, buttons will be initialized with a different method
+
     setButtonComponent(posSoftButton);
     setButtonComponent(posHardButton);
     setButtonComponent(posArcTanButton);
@@ -59,16 +73,15 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     setButtonComponent(posSinFoldButton);
     setButtonComponent(posCustomButton);
     
-    // Distortion negative voltage parameters
-    setSliderComponent(negCorrKnob, negCorrKnobAttachment, "NEG_CORR", "Rot");
-    setSliderComponent(negFxKnob, negFxKnobAttachment, "NEG_FX", "Rot");
-
     setButtonComponent(negSoftButton);
     setButtonComponent(negHardButton);
     setButtonComponent(negArcTanButton);
     setButtonComponent(negTanhButton);
     setButtonComponent(negSinFoldButton);
     setButtonComponent(negCustomButton);
+    
+    setHiddenSliderComponent(posFuncHiddenSlider, posFuncHiddenSliderAttachment, "POS_FUNC");
+    setHiddenSliderComponent(negFuncHiddenSlider, negFuncHiddenSliderAttachment, "NEG_FUNC");
         
     // Compression parameters
     setToggleComponent(compToggle, compToggleAttachment, "COMP_ON");
@@ -96,9 +109,6 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     setSliderComponent(postHighQKnob, postHighQKnobAttachment, "POST_HIGH_Q", "Rot");
     setSliderComponent(postHighFreqKnob, postHighFreqKnobAttachment, "POST_HIGH_FREQ", "Rot");
     
-    // =========== DISTORTION FUNCTION BUTTONS LOGIC ===============================
-    // TODO: Func buttons change the processor->func values, buttons will be initialized with a different method
-    
     // ==================== IMAGE ASSETS ===========================================
     backgroundImage = juce::ImageCache::getFromMemory(BinaryData::background_png, BinaryData::background_pngSize);
     lightOnImage = juce::ImageCache::getFromMemory(BinaryData::lightOn_png, BinaryData::lightOn_pngSize);
@@ -114,6 +124,23 @@ PluginEditor::PluginEditor (PluginProcessor& p)
 
 PluginEditor::~PluginEditor()
 {
+    posSoftButton.removeListener(this);
+    posHardButton.removeListener(this);
+    posArcTanButton.removeListener(this);
+    posTanhButton.removeListener(this);
+    posSinFoldButton.removeListener(this);
+    posCustomButton.removeListener(this);
+    //
+    negSoftButton.removeListener(this);
+    negHardButton.removeListener(this);
+    negArcTanButton.removeListener(this);
+    negTanhButton.removeListener(this);
+    negSinFoldButton.removeListener(this);
+    negCustomButton.removeListener(this);
+    //
+    driveSymKnob.removeListener(this);
+    posFxKnob.removeListener(this);
+    negFxKnob.removeListener(this);
 }
 
 void PluginEditor::paint (juce::Graphics& g)
@@ -131,62 +158,61 @@ void PluginEditor::paint (juce::Graphics& g)
     if (compToggle.getToggleState())
         g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 873, 342));
     
-    // ============ Drive function lights  ================
-    // FIXME: Lights don't change position ?
-    switch (processorRef.getPosFunc()) {
-        case 0:
-            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 366, 365));
-            break;
-        case 1:
-            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 366, 415));
-            break;
-        case 2:
-            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 484, 365));
-            break;
-        case 3:
-            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 484, 415));
-            break;
-        case 4:
-            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 598, 365));
-            break;
-        case 5:
-            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 598, 415));
-            break;
-            
-        default:
-            break;
-    }
-    
-    switch (processorRef.getNegFunc()) {
-        case 0:
-            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 366, 475));
-            break;
-        case 1:
-            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 366, 525));
-            break;
-        case 2:
-            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 484, 475));
-            break;
-        case 3:
-            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 484, 525));
-            break;
-        case 4:
-            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 598, 475));
-            break;
-        case 5:
-            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 598, 525));
-            break;
-            
-        default:
-            break;
-    }
-    
     // ============== Symmetry mode =======================
     if (driveSymKnob.getValue())
         g.drawImageTransformed(switchImage, scaledDown(0.5f, 122, 430));
     else
         g.drawImageTransformed(switchImage, scaledDown(0.5f, 122, 460));
     
+    // ============ Drive function lights  ================
+    // FIXME: Lights don't appear when they should ?
+    switch ((int) posFuncHiddenSlider.getValue()) {
+        case 0:
+            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 366, 364));
+            break;
+        case 1:
+            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 366, 410));
+            break;
+        case 2:
+            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 480, 364));
+            break;
+        case 3:
+            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 480, 410));
+            break;
+        case 4:
+            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 594, 364));
+            break;
+        case 5:
+            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 594, 410));
+            break;
+            
+        default:
+            break;
+    }
+    
+    switch ((int) negFuncHiddenSlider.getValue()) {
+        case 0:
+            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 366, 472));
+            break;
+        case 1:
+            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 366, 520));
+            break;
+        case 2:
+            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 480, 472));
+            break;
+        case 3:
+            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 480, 520));
+            break;
+        case 4:
+            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 594, 472));
+            break;
+        case 5:
+            g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 594, 520));
+            break;
+            
+        default:
+            break;
+    }
     
     // ===== Header parameter knobs angle in radians ======
     auto inputRadians = rotationRadians(inputKnob.getValue(), -30.f, 30.f);
@@ -279,16 +305,17 @@ void PluginEditor::paint (juce::Graphics& g)
     //
     
     //
-    // ==============================================================
-    // WHEN MY EDITOR IS READY, I SHOULD DELETE EVERYTHING DOWN BELOW
-    // ==============================================================
+    // ====================================================================
+    // TODO: WHEN MY EDITOR IS READY, I SHOULD DELETE EVERYTHING DOWN BELOW
+    // ====================================================================
     //
-
+    #ifndef NDEBUG
     auto area = getLocalBounds();
     g.setColour (juce::Colours::white);
     g.setFont (16.0f);
     auto helloWorld = juce::String ("Hello from ") + PRODUCT_NAME_WITHOUT_VERSION + " v" VERSION + " running in " + CMAKE_BUILD_TYPE;
     g.drawText (helloWorld, area.removeFromTop (150), juce::Justification::centred, false);
+    #endif
 }
 
 void PluginEditor::resized()
@@ -358,14 +385,16 @@ void PluginEditor::resized()
     compRelKnob.setBounds(880, 470, 75, 75);
     
     //
-    // ==============================================================
-    // WHEN MY EDITOR IS READY, I SHOULD DELETE EVERYTHING DOWN BELOW
-    // ==============================================================
+    // ====================================================================
+    // TODO: WHEN MY EDITOR IS READY, I SHOULD DELETE EVERYTHING DOWN BELOW
+    // ====================================================================
     //
     // layout the positions of your child components here
+    #ifndef NDEBUG
     auto area = getLocalBounds();
     area.removeFromBottom(50);
     inspectButton.setBounds (getLocalBounds().withSizeKeepingCentre(100, 50));
+    #endif
 }
 
 //=================== PARAMETER MANIPULATION UTILS ==============================
@@ -383,6 +412,17 @@ void PluginEditor::setSliderComponent(juce::Slider& slider, std::unique_ptr<juce
     slider.setAlpha(0);
 }
 
+void PluginEditor::setHiddenSliderComponent(juce::Slider& slider, std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>& sliderAttachment, juce::String paramName)
+{
+    sliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.state, paramName, slider);
+    
+    slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
+    
+    slider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    addChildComponent(slider);
+    // slider.setAlpha(0);
+}
+
 void PluginEditor::setToggleComponent(juce::ToggleButton& button, std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>& buttonAttachment, juce::String paramName)
 {
     buttonAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(processorRef.state, paramName, button);
@@ -394,36 +434,75 @@ void PluginEditor::setButtonComponent(juce::TextButton& button)
 {
     addAndMakeVisible(button);
     button.addListener(this);
-    // button.setAlpha(0);
+    button.setAlpha(0);
 }
 
 void PluginEditor::buttonClicked(juce::Button* button)
 {
-    if (button == &posSoftButton)
-            processorRef.setPosFunc(0);
-    else if (button == &posHardButton)
-            processorRef.setPosFunc(1);
-    else if (button == &posArcTanButton)
-            processorRef.setPosFunc(2);
-    else if (button == &posTanhButton)
-            processorRef.setPosFunc(3);
-    else if (button == &posSinFoldButton)
-            processorRef.setPosFunc(4);
-    else if (button == &posCustomButton)
-            processorRef.setPosFunc(5);
+    // Is this a programming war crime ???
+    if (button == &posSoftButton) {
+        posFuncHiddenSlider.setValue(0);
+        if (driveSymKnob.getValue())
+            negFuncHiddenSlider.setValue(0);
+    } else if (button == &posHardButton) {
+        posFuncHiddenSlider.setValue(1);
+        if (driveSymKnob.getValue())
+            negFuncHiddenSlider.setValue(1);
+    } else if (button == &posArcTanButton) {
+        posFuncHiddenSlider.setValue(2);
+        if (driveSymKnob.getValue())
+            negFuncHiddenSlider.setValue(2);
+    } else if (button == &posTanhButton) {
+        posFuncHiddenSlider.setValue(3);
+        if (driveSymKnob.getValue())
+            negFuncHiddenSlider.setValue(3);
+    } else if (button == &posSinFoldButton) {
+        posFuncHiddenSlider.setValue(4);
+        if (driveSymKnob.getValue())
+            negFuncHiddenSlider.setValue(4);
+    } else if (button == &posCustomButton) {
+        posFuncHiddenSlider.setValue(5);
+        if (driveSymKnob.getValue())
+            negFuncHiddenSlider.setValue(5);
     //
-    else if (button == &negSoftButton)
-            processorRef.setNegFunc(0);
-    else if (button == &negHardButton)
-            processorRef.setNegFunc(1);
-    else if (button == &negArcTanButton)
-            processorRef.setNegFunc(2);
-    else if (button == &negTanhButton)
-            processorRef.setNegFunc(3);
-    else if (button == &negSinFoldButton)
-            processorRef.setNegFunc(4);
-    else if (button == &negCustomButton)
-            processorRef.setNegFunc(5);
+    } else if (button == &negSoftButton) {
+        negFuncHiddenSlider.setValue(0);
+        if (driveSymKnob.getValue())
+            posFuncHiddenSlider.setValue(0);
+    } else if (button == &negHardButton) {
+        negFuncHiddenSlider.setValue(1);
+        if (driveSymKnob.getValue())
+            posFuncHiddenSlider.setValue(1);
+    } else if (button == &negArcTanButton) {
+        negFuncHiddenSlider.setValue(2);
+        if (driveSymKnob.getValue())
+            posFuncHiddenSlider.setValue(2);
+    } else if (button == &negTanhButton) {
+        negFuncHiddenSlider.setValue(3);
+        if (driveSymKnob.getValue())
+            posFuncHiddenSlider.setValue(3);
+    } else if (button == &negSinFoldButton) {
+        negFuncHiddenSlider.setValue(4);
+        if (driveSymKnob.getValue())
+            posFuncHiddenSlider.setValue(4);
+    } else if (button == &negCustomButton) {
+        negFuncHiddenSlider.setValue(5);
+        if (driveSymKnob.getValue())
+            posFuncHiddenSlider.setValue(5);
+    }
+}
+
+void PluginEditor::sliderValueChanged(juce::Slider *slider)
+{
+    // Smaller programming war crime ???
+    if (slider == &driveSymKnob) {
+        negFuncHiddenSlider.setValue( posFuncHiddenSlider.getValue() );
+        negFxKnob.setValue( posFxKnob.getValue() );
+    } else if (slider == &posFxKnob && driveSymKnob.getValue()) {
+        negFxKnob.setValue( posFxKnob.getValue() );
+    } else if (slider == &negFxKnob && driveSymKnob.getValue()) {
+        posFxKnob.setValue( negFxKnob.getValue() );
+    }
 }
 
 float PluginEditor::rotationRadians(float actualVal, float minVal, float maxVal)

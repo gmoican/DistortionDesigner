@@ -22,8 +22,6 @@ At some point I will put the mathematical formulas/graphs of how every single wa
 
 * Positive / Negative corrections don't work ??
 
-* UI function buttons aren't attached correctly to the processor's parameters.
-
 * The graph in the middle should display the waveshaping that is being applied to the signal.
 
 * I want the `Custom` function to be a ComboBox where you can actually select different functions and then the f(x) knob will modify the waveshaper in a different way.
