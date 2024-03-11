@@ -227,7 +227,7 @@ void PluginEditor::paint (juce::Graphics& g)
     
     // ====== PreEQ parameter knobs angle in radians ======
     auto preHPFRadians = rotationRadians(preHPFKnob.getValue(), 10.f, 200.f);
-    auto preLPFRadians = rotationRadians(preLPFKnob.getValue(), 4500.f, 20000.f);
+    auto preLPFRadians = rotationRadians(preLPFKnob.getValue(), 2000.f, 20000.f);
     auto preLowGainRadians = rotationRadians(preLowGainKnob.getValue(), -12.f, 12.f);
     auto preLowQRadians = rotationRadians(preLowQKnob.getValue(), 0.5f, 4.f);
     auto preLowFreqRadians = rotationRadians(preLowFreqKnob.getValue(), 60.f, 200.f);
@@ -252,7 +252,7 @@ void PluginEditor::paint (juce::Graphics& g)
     
     // ===== PostEQ parameter knobs angle in radians ======
     auto postHPFRadians = rotationRadians(postHPFKnob.getValue(), 10.f, 200.f);
-    auto postLPFRadians = rotationRadians(postLPFKnob.getValue(), 4500.f, 20000.f);
+    auto postLPFRadians = rotationRadians(postLPFKnob.getValue(), 2000.f, 20000.f);
     auto postLowGainRadians = rotationRadians(postLowGainKnob.getValue(), -12.f, 12.f);
     auto postLowQRadians = rotationRadians(postLowQKnob.getValue(), 0.5f, 4.f);
     auto postLowFreqRadians = rotationRadians(postLowFreqKnob.getValue(), 60.f, 200.f);
@@ -440,19 +440,19 @@ void PluginEditor::setButtonComponent(juce::TextButton& button)
 void PluginEditor::buttonClicked(juce::Button* button)
 {
     // Is this a programming war crime ???
-    if (button == &posSoftButton) {
+    if (button == &posTanhButton) {
         posFuncHiddenSlider.setValue(0);
         if (driveSymKnob.getValue())
             negFuncHiddenSlider.setValue(0);
-    } else if (button == &posHardButton) {
+    } else if (button == &posArcTanButton) {
         posFuncHiddenSlider.setValue(1);
         if (driveSymKnob.getValue())
             negFuncHiddenSlider.setValue(1);
-    } else if (button == &posArcTanButton) {
+    } else if (button == &posHardButton) {
         posFuncHiddenSlider.setValue(2);
         if (driveSymKnob.getValue())
             negFuncHiddenSlider.setValue(2);
-    } else if (button == &posTanhButton) {
+    } else if (button == &posSoftButton) {
         posFuncHiddenSlider.setValue(3);
         if (driveSymKnob.getValue())
             negFuncHiddenSlider.setValue(3);
@@ -465,19 +465,19 @@ void PluginEditor::buttonClicked(juce::Button* button)
         if (driveSymKnob.getValue())
             negFuncHiddenSlider.setValue(5);
     //
-    } else if (button == &negSoftButton) {
+    } else if (button == &negTanhButton) {
         negFuncHiddenSlider.setValue(0);
         if (driveSymKnob.getValue())
             posFuncHiddenSlider.setValue(0);
-    } else if (button == &negHardButton) {
+    } else if (button == &negArcTanButton) {
         negFuncHiddenSlider.setValue(1);
         if (driveSymKnob.getValue())
             posFuncHiddenSlider.setValue(1);
-    } else if (button == &negArcTanButton) {
+    } else if (button == &negHardButton) {
         negFuncHiddenSlider.setValue(2);
         if (driveSymKnob.getValue())
             posFuncHiddenSlider.setValue(2);
-    } else if (button == &negTanhButton) {
+    } else if (button == &negSoftButton) {
         negFuncHiddenSlider.setValue(3);
         if (driveSymKnob.getValue())
             posFuncHiddenSlider.setValue(3);

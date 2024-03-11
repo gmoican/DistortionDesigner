@@ -455,24 +455,20 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new PluginProcessor();
 }
 
-// ========== GETTERS & SETTERS USED IN THE EDITOR =============================
-/*
-int PluginProcessor::getPosFunc() { return posFunc; }
-int PluginProcessor::getNegFunc() { return negFunc; }
-
-void PluginProcessor::setPosFunc(int newVal) { posFunc = newVal; }
-void PluginProcessor::setNegFunc(int newVal) { negFunc = newVal; }
-*/
-
 // ========== DRIVE MATH FUNCTIONS =============================================
 float PluginProcessor::softClipping(float sample)
 {
-    return 1.5f * sample * (1.f - std::pow(sample, 2.f) / 3.f);
+    return sample / (abs(sample) + 1.f);
 }
 
 float PluginProcessor::hardClipping(float sample)
 {
-    return sample / (abs(sample) + 1.f);
+    if (sample > 2.f / 3.f)
+        return 2.f / 3.f;
+    else if (sample < -2.f / 3.f)
+        return -2.f / 3.f;
+    else
+        return sample - std::pow(sample, 3.f) / 3.f;
 }
 
 float PluginProcessor::arcTanClipping(float sample)
@@ -492,7 +488,7 @@ float PluginProcessor::sinFold(float sample)
 
 float PluginProcessor::customClipping(float sample, float driveVal, float fxVal)
 {
-    return std::atan(sample / driveVal) / std::atan(driveVal) * fxVal + sample * (1.f - fxVal);
+    return std::atan(sample) / std::atan(driveVal) * fxVal + sample * (1.f - fxVal);
 }
 
 // This function manages all the previous drive functions in the processor
@@ -503,69 +499,63 @@ float PluginProcessor::shapeBlender(float sample)
     if (sample >= 0) {
         switch (posFunc) {
             case 0:
-                processedSample = softClipping(sample);
+                processedSample = posCorr * tanhClipping(sample);
                 break;
                 
             case 1:
-                processedSample = hardClipping(sample);
+                processedSample = posCorr * arcTanClipping(sample);
                 break;
                 
             case 2:
-                processedSample = arcTanClipping(sample);
+                processedSample = posCorr * hardClipping(sample);
                 break;
                 
             case 3:
-                processedSample = tanhClipping(sample);
+                processedSample = posCorr * softClipping(sample);
                 break;
                 
             case 4:
-                processedSample = sinFold(sample);
+                processedSample = posCorr * sinFold(sample);
                 break;
                 
             case 5:
-                processedSample = customClipping(sample, driveGain, posFx);
+                processedSample = posCorr * customClipping(sample, driveGain, posFx);
                 break;
                 
             default:
                 processedSample = 0.f;
                 break;
         }
-        
-        sample *= posCorr;
-        
     } else {
         switch (negFunc) {
             case 0:
-                processedSample = softClipping(sample);
+                processedSample = negCorr * tanhClipping(sample);
                 break;
                 
             case 1:
-                processedSample = hardClipping(sample);
+                processedSample = negCorr * arcTanClipping(sample);
                 break;
                 
             case 2:
-                processedSample = arcTanClipping(sample);
+                processedSample = negCorr * hardClipping(sample);
                 break;
                 
             case 3:
-                processedSample = tanhClipping(sample);
+                processedSample = negCorr * softClipping(sample);
                 break;
                 
             case 4:
-                processedSample = sinFold(sample);
+                processedSample = negCorr * sinFold(sample);
                 break;
                 
             case 5:
-                processedSample = customClipping(sample, driveGain, negFx);
+                processedSample = negCorr * customClipping(sample, driveGain, negFx);
                 break;
                 
             default:
                 processedSample = 0.f;
                 break;
-        }
-        
-        sample *= negCorr;
-        
+        } 
     }
     
     return processedSample;

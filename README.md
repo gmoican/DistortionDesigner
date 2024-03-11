@@ -12,15 +12,13 @@ My signal path is a basic chain to emulate the distortion of guitar amplifiers. 
 
 I suggest checking out both [Fractal Audio Systems whitepaper on guitar tone][1] and [Digital modeling of guitar amplifier preamp distortion][2] to get an idea of the process.
 
-**Signal path:** Input gain &rarr Noise gate &rarr PreEQ &rarr Distortion section &rarr Compression section &rarr PostEQ &rarr Mix &rarr Output gain
+**Signal path:** Input gain → Noise gate → PreEQ → Distortion section → Compression section → PostEQ → Mix → Output gain
 
 ## Waveshaping functions
 
 At some point I will put the mathematical formulas/graphs of how every single waveshaping function works.
 
 ## TODO list
-
-* Positive / Negative corrections don't work ??
 
 * The graph in the middle should display the waveshaping that is being applied to the signal.
 
