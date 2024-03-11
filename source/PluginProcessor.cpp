@@ -463,9 +463,9 @@ float PluginProcessor::softClipping(float sample)
 
 float PluginProcessor::hardClipping(float sample)
 {
-    if (sample > 2.f / 3.f)
+    if (sample > 1.f)
         return 2.f / 3.f;
-    else if (sample < -2.f / 3.f)
+    else if (sample < -1.f)
         return -2.f / 3.f;
     else
         return sample - std::pow(sample, 3.f) / 3.f;
@@ -488,7 +488,7 @@ float PluginProcessor::sinFold(float sample)
 
 float PluginProcessor::customClipping(float sample, float driveVal, float fxVal)
 {
-    return std::atan(sample) / std::atan(driveVal) * fxVal + sample * (1.f - fxVal);
+    return std::atan(sample) / std::atan(driveVal) * fxVal + sample / driveVal * (1.f - fxVal);
 }
 
 // This function manages all the previous drive functions in the processor
@@ -560,3 +560,6 @@ float PluginProcessor::shapeBlender(float sample)
     
     return processedSample;
 }
+
+// Util for UI function graph
+float PluginProcessor::getDriveGain() { return driveGain; }

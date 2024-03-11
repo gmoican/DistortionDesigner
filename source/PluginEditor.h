@@ -41,6 +41,9 @@ public:
 
 private:
     // ================= PARAMETER CONTROLS ========================================
+    // Draw f(x)
+    void functionGrapher(juce::Graphics&, float driveVal, float biasVal);
+    
     // Header parameters
     juce::Slider inputKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inputKnobAttachment;
@@ -118,26 +121,6 @@ private:
     juce::Slider posFuncHiddenSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> posFuncHiddenSliderAttachment;
     
-    /*
-    juce::ToggleButton posSoftButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> posSoftButtonAttachment;
-    
-    juce::ToggleButton posHardButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> posHardButtonAttachment;
-    
-    juce::ToggleButton posArcTanButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> posArcTanButtonAttachment;
-    
-    juce::ToggleButton posTanhButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> posTanhButtonAttachment;
-    
-    juce::ToggleButton posSinFoldButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> posSinFoldButtonAttachment;
-    
-    juce::ToggleButton posCustomButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> posCustomButtonAttachment;
-     */
-    
     // Distortion negative voltage parameters
     juce::Slider negCorrKnob;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> negCorrKnobAttachment;
@@ -154,26 +137,6 @@ private:
     
     juce::Slider negFuncHiddenSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> negFuncHiddenSliderAttachment;
-    
-    /*
-    juce::ToggleButton negSoftButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> negSoftButtonAttachment;
-    
-    juce::ToggleButton negHardButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> negHardButtonAttachment;
-    
-    juce::ToggleButton negArcTanButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> negArcTanButtonAttachment;
-    
-    juce::ToggleButton negTanhButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> negTanhButtonAttachment;
-    
-    juce::ToggleButton negSinFoldButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> negSinFoldButtonAttachment;
-    
-    juce::ToggleButton negCustomButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> negCustomButtonAttachment;
-     */
     
     // Compression parameters
     juce::ToggleButton compToggle;

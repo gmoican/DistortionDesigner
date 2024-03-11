@@ -19,7 +19,7 @@ PluginEditor::PluginEditor (PluginProcessor& p)
         inspector->setVisible (true);
     #endif
     };
-
+    
     // ================= PARAMETER CONTROLS ========================================
     // Header parameters
     setSliderComponent(inputKnob, inputKnobAttachment, "INPUT", "Rot");
@@ -64,7 +64,6 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     negFxKnob.addListener(this);
     
     // =========== DISTORTION FUNCTION BUTTONS LOGIC ===============================
-    // TODO: Func buttons change the processor->func values, buttons will be initialized with a different method
 
     setButtonComponent(posSoftButton);
     setButtonComponent(posHardButton);
@@ -82,7 +81,7 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     
     setHiddenSliderComponent(posFuncHiddenSlider, posFuncHiddenSliderAttachment, "POS_FUNC");
     setHiddenSliderComponent(negFuncHiddenSlider, negFuncHiddenSliderAttachment, "NEG_FUNC");
-        
+    
     // Compression parameters
     setToggleComponent(compToggle, compToggleAttachment, "COMP_ON");
     
@@ -165,7 +164,6 @@ void PluginEditor::paint (juce::Graphics& g)
         g.drawImageTransformed(switchImage, scaledDown(0.5f, 122, 460));
     
     // ============ Drive function lights  ================
-    // FIXME: Lights don't appear when they should ?
     switch ((int) posFuncHiddenSlider.getValue()) {
         case 0:
             g.drawImageTransformed(lightOnImage, scaledDown(0.5f, 366, 364));
@@ -301,8 +299,9 @@ void PluginEditor::paint (juce::Graphics& g)
     g.drawImageTransformed(knobWhiteImage, knobRotation(compAttRadians, 0.45f, 788, 483));
     g.drawImageTransformed(knobWhiteImage, knobRotation(compRelRadians, 0.45f, 893, 483));
     
-    // TODO: Draw f(x) in the graph panel
-    //
+    // FIXME: Laggy response when changing clipping function
+    // Draw f(x) in the graph panel
+    functionGrapher(g, driveGainKnob.getValue(), driveBiasKnob.getValue());
     
     //
     // ====================================================================
@@ -420,7 +419,6 @@ void PluginEditor::setHiddenSliderComponent(juce::Slider& slider, std::unique_pt
     
     slider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     addChildComponent(slider);
-    // slider.setAlpha(0);
 }
 
 void PluginEditor::setToggleComponent(juce::ToggleButton& button, std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>& buttonAttachment, juce::String paramName)
@@ -529,4 +527,28 @@ juce::AffineTransform PluginEditor::scaledDown(float scaleFactor, float posX, fl
     t = t.scaled(scaleFactor);
     t = t.translated(posX, posY);
     return t;
+}
+
+void PluginEditor::functionGrapher(juce::Graphics& g, float driveVal, float biasVal)
+{
+    float gainLinear = juce::Decibels::decibelsToGain(driveVal);
+    
+    // Draw f(x)
+    g.setColour(juce::Colours::coral);
+    juce::Path fxPath;
+    for (int x = 350; x < 630; ++x) {
+        float xVal = juce::jmap((float) x, 350.f, 630.f, -1.f, 1.f);
+        float yVal = processorRef.shapeBlender(xVal * gainLinear);
+        int y = (int) juce::jmap(yVal, -1.f, 1.f, 330.f, 50.f);
+        
+        juce::Point<float> p (x, y);
+        x == 350 ? fxPath.startNewSubPath(p) : fxPath.lineTo(p);
+    }
+    g.strokePath(fxPath, juce::PathStrokeType(2.0f));
+    
+    // Draw bias line
+    int xBias = (int) juce::jmap((float) biasVal, -1.f, 1.f, 350.f, 630.f);
+    float dashLengths[] = {10.f, 5.f};
+    g.setColour(juce::Colours::peachpuff);
+    g.drawDashedLine(juce::Line<float>(xBias, 50, xBias, 330), dashLengths, 2, 1.5f);
 }

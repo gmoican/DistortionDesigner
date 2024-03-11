@@ -61,6 +61,12 @@ public:
     
     //=============== MY STUFF =====================================================
     juce::AudioProcessorValueTreeState state;
+    
+    // Waveshaper blender ?
+    static float shapeBlender(float sample);
+    
+    // Util for UI function graph
+    float getDriveGain();
 
 private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParams();
@@ -112,9 +118,6 @@ private:
     static float tanhClipping(float sample);
     static float sinFold(float sample);
     static float customClipping(float sample, float driveVal, float fxVal);
-    
-    // Waveshaper blender ?
-    static float shapeBlender(float sample);
         
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)
