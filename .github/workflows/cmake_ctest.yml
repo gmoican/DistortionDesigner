@@ -193,6 +193,11 @@ jobs:
     #    xcrun notarytool submit "${{ env.ARTIFACT_NAME }}.dmg" --apple-id ${{ secrets.NOTARIZATION_USERNAME }} --password ${{ secrets.NOTARIZATION_PASSWORD }} --team-id ${{ secrets.TEAM_ID }} --wait
     #    xcrun stapler staple "${{ env.ARTIFACT_NAME }}.dmg"
 
+    - name: Check directory contents
+      run: |
+        ls -l "${{ env.ARTIFACTS_PATH }}"
+        ls -l packaging/dmg
+
     - name: Zip
       if: ${{ matrix.name == 'Linux' }}
       working-directory: ${{ env.ARTIFACTS_PATH }}
