@@ -212,7 +212,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.ARTIFACT_NAME }}.vst3
-        path: '${{ env.ARTIFACTS_PATH }}/${{ env.ARTIFACT_NAME }}.exe'
+        path: '${{ env.ARTIFACTS_PATH }}/${{ env.ARTIFACT_NAME }}.vst3'
 
     - name: Upload Zip (Linux)
       if: ${{ matrix.name == 'Linux' }}
@@ -226,7 +226,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.ARTIFACT_NAME }}.dmg
-        path: packaging/${{ env.ARTIFACT_NAME }}.dmg
+        path: packaging/dmg/${{ env.ARTIFACT_NAME }}.dmg
 
   release:
     if: contains(github.ref, 'tags/v')
