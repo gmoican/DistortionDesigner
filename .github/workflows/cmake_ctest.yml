@@ -189,7 +189,7 @@ jobs:
         
         # Create a ZIP and put files into it
         cd packaging/dmg
-        zip -r ../{{ env.ARTIFACT_NAME }}.zip .
+        zip -r ../${{ env.ARTIFACT_NAME }}.zip .
 
     #    # Run appdmg to create the .dmg
     #    cd packaging && appdmg dmg.json "${{ env.ARTIFACT_NAME}}.dmg"
