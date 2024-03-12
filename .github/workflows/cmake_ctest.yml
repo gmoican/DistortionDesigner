@@ -187,16 +187,15 @@ jobs:
         mv "${{ env.AU_PATH }}" packaging/dmg
     #    mv "${{ env.STANDALONE_PATH }}" packaging/dmg
         
+        # Create a ZIP and put files into it
+        cd packaging/dmg
+        zip -r ../{{ env.ARTIFACT_NAME }}.zip .
+
     #    # Run appdmg to create the .dmg
     #    cd packaging && appdmg dmg.json "${{ env.ARTIFACT_NAME}}.dmg"
     #    codesign -s "${{ secrets.DEVELOPER_ID_APPLICATION}}" --timestamp -i ${{ env.BUNDLE_ID }} --force "${{ env.ARTIFACT_NAME }}.dmg"
     #    xcrun notarytool submit "${{ env.ARTIFACT_NAME }}.dmg" --apple-id ${{ secrets.NOTARIZATION_USERNAME }} --password ${{ secrets.NOTARIZATION_PASSWORD }} --team-id ${{ secrets.TEAM_ID }} --wait
     #    xcrun stapler staple "${{ env.ARTIFACT_NAME }}.dmg"
-
-    - name: Check directory contents
-      run: |
-        ls -l "${{ env.ARTIFACTS_PATH }}"
-        ls -l packaging/dmg
 
     - name: Zip
       if: ${{ matrix.name == 'Linux' }}
@@ -216,8 +215,8 @@ jobs:
       if: ${{ matrix.name == 'Windows' }}
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ env.ARTIFACT_NAME }}.vst3
-        path: '${{ env.ARTIFACTS_PATH }}/${{ env.ARTIFACT_NAME }}.vst3'
+        name: 'Distortion Designer.vst3.vst3'
+        path: '${{ env.VST3_PATH }}'
 
     - name: Upload Zip (Linux)
       if: ${{ matrix.name == 'Linux' }}
@@ -230,8 +229,8 @@ jobs:
       if: ${{ matrix.name == 'macOS' }}
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ env.ARTIFACT_NAME }}.dmg
-        path: packaging/dmg/${{ env.ARTIFACT_NAME }}.dmg
+        name: ${{ env.ARTIFACT_NAME }}.zip
+        path: ${{ env.ARTIFACT_NAME }}.dmg
 
   release:
     if: contains(github.ref, 'tags/v')
