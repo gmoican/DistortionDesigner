@@ -230,7 +230,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.ARTIFACT_NAME }}.zip
-        path: ${{ env.ARTIFACT_NAME }}.dmg
+        path: ${{ env.ARTIFACT_NAME }}.zip
 
   release:
     if: contains(github.ref, 'tags/v')
