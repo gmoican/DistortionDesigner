@@ -2,7 +2,7 @@
 
 #include "PluginProcessor.h"
 #include "BinaryData.h"
-// DELETE WHEN PLUGIN FINISHED
+// INSPECTOR IS ONLY USED IN DEBUG BUILD
 #ifndef NDEBUG
 #include "melatonin_inspector/melatonin_inspector.h"
 #endif
@@ -204,7 +204,7 @@ private:
     // access the processor object that created it.
     PluginProcessor& processorRef;
     
-    // DELETE WHEN PLUGIN FINISHED
+    // INSPECTOR IS ONLY USED IN DEBUG BUILD
     #ifndef NDEBUG
     std::unique_ptr<melatonin::Inspector> inspector;
     juce::TextButton inspectButton { "Inspect the UI" };

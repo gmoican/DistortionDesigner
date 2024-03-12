@@ -5,6 +5,7 @@ PluginEditor::PluginEditor (PluginProcessor& p)
 {
     juce::ignoreUnused (processorRef);
 
+    // INSPECTOR IS ONLY USED IN DEBUG BUILD
     #ifndef NDEBUG
     addAndMakeVisible (inspectButton);
 
@@ -17,8 +18,8 @@ PluginEditor::PluginEditor (PluginProcessor& p)
         }
 
         inspector->setVisible (true);
-    #endif
     };
+    #endif
     
     // ================= PARAMETER CONTROLS ========================================
     // Header parameters
@@ -117,7 +118,7 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     knobWhiteImage = juce::ImageCache::getFromMemory(BinaryData::knobWhite_png, BinaryData::knobWhite_pngSize);
     switchImage = juce::ImageCache::getFromMemory(BinaryData::switch_png, BinaryData::switch_pngSize);
     
-    // Size should be set in the Wrapper to allow resizing
+    // FIXME: Size should be set in a Wrapper to allow resizing
     setSize (980, 580);
 }
 
@@ -303,11 +304,7 @@ void PluginEditor::paint (juce::Graphics& g)
     // Draw f(x) in the graph panel
     functionGrapher(g, driveGainKnob.getValue(), driveBiasKnob.getValue());
     
-    //
-    // ====================================================================
-    // TODO: WHEN MY EDITOR IS READY, I SHOULD DELETE EVERYTHING DOWN BELOW
-    // ====================================================================
-    //
+    // INSPECTOR IS ONLY USED IN DEBUG BUILD
     #ifndef NDEBUG
     auto area = getLocalBounds();
     g.setColour (juce::Colours::white);
@@ -383,12 +380,7 @@ void PluginEditor::resized()
     compAttKnob.setBounds(780, 470, 75, 75);
     compRelKnob.setBounds(880, 470, 75, 75);
     
-    //
-    // ====================================================================
-    // TODO: WHEN MY EDITOR IS READY, I SHOULD DELETE EVERYTHING DOWN BELOW
-    // ====================================================================
-    //
-    // layout the positions of your child components here
+    // INSPECTOR IS ONLY USED IN DEBUG BUILD
     #ifndef NDEBUG
     auto area = getLocalBounds();
     area.removeFromBottom(50);
@@ -532,6 +524,7 @@ juce::AffineTransform PluginEditor::scaledDown(float scaleFactor, float posX, fl
 void PluginEditor::functionGrapher(juce::Graphics& g, float driveVal, float biasVal)
 {
     float gainLinear = juce::Decibels::decibelsToGain(driveVal);
+    int xBias = (int) juce::jmap((float) biasVal, -1.f, 1.f, 350.f, 630.f);
     
     // Draw f(x)
     g.setColour(juce::Colours::coral);
@@ -543,11 +536,17 @@ void PluginEditor::functionGrapher(juce::Graphics& g, float driveVal, float bias
         
         juce::Point<float> p (x, y);
         x == 350 ? fxPath.startNewSubPath(p) : fxPath.lineTo(p);
+        
+        // Draw intersection between bias and f(x)
+        if (x == xBias) {
+            g.setColour(juce::Colours::peachpuff);
+            g.drawEllipse(x - 2.5f, y - 2.5f, 5.f, 5.f, 2.f);
+            g.setColour(juce::Colours::coral);
+        }
     }
     g.strokePath(fxPath, juce::PathStrokeType(2.0f));
     
     // Draw bias line
-    int xBias = (int) juce::jmap((float) biasVal, -1.f, 1.f, 350.f, 630.f);
     float dashLengths[] = {10.f, 5.f};
     g.setColour(juce::Colours::peachpuff);
     g.drawDashedLine(juce::Line<float>(xBias, 50, xBias, 330), dashLengths, 2, 1.5f);
