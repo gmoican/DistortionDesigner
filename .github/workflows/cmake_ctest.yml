@@ -145,6 +145,18 @@ jobs:
         curl -LO "https://github.com/Tracktion/pluginval/releases/download/v1.0.3/pluginval_${{ matrix.name }}.zip"
         7z x pluginval_${{ matrix.name }}.zip
         ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate "${{ env.VST3_PATH }}"
+    
+    - name: Zip build artifacts
+      shell: bash
+      run: |
+        cd $ARTIFACTS_PATH
+        zip -r "${ ARTIFACT_NAME }" .
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.ARTIFACT_NAME }}.zip
+        path: ${{ env.ARTIFACTS_PATH }}/${{ env.ARTIFACT_NAME }}.zip
 
     # - name: Codesign (macOS)
     #   if: ${{ matrix.name == 'macOS' }}
@@ -171,25 +183,25 @@ jobs:
     #     SetFile -a C "${{ env.VST3_PATH }}"
     #     SetFile -a C "${{ env.AU_PATH }}"
 
-    - name: Create DMG, Notarize and Staple (macOS)
-      if: ${{ matrix.name == 'macOS' }}
-      run: |
-        # workaround for https://github.com/LinusU/node-appdmg/issues/234
-        python3 -m pip install setuptools
-        npm install -g appdmg
-        mkdir -p packaging/dmg
-        
-        # Create directories for the dmg symlinks
-        sudo mkdir -m 755 -p /Library/Audio/Plug-Ins/Components && sudo mkdir -m 755 -p /Library/Audio/Plug-Ins/VST3
-        ln -s /Library/Audio/Plug-Ins/Components "packaging/dmg/Your Mac's Component folder"
-        ln -s /Library/Audio/Plug-Ins/VST3 "packaging/dmg/Your Mac's VST3 folder"
-        mv "${{ env.VST3_PATH }}" packaging/dmg
-        mv "${{ env.AU_PATH }}" packaging/dmg
-        # mv "${{ env.STANDALONE_PATH }}" packaging/dmg
-        
-        # Create a ZIP and put files into it
-        cd packaging/dmg
-        zip -r "../${{ env.ARTIFACT_NAME }}.zip" .
+    # - name: Create DMG, Notarize and Staple (macOS)
+    #   if: ${{ matrix.name == 'macOS' }}
+    #   run: |
+    #     # workaround for https://github.com/LinusU/node-appdmg/issues/234
+    #     python3 -m pip install setuptools
+    #     npm install -g appdmg
+    #     mkdir -p packaging/dmg
+    #     
+    #     # Create directories for the dmg symlinks
+    #     sudo mkdir -m 755 -p /Library/Audio/Plug-Ins/Components && sudo mkdir -m 755 -p /Library/Audio/Plug-Ins/VST3
+    #     ln -s /Library/Audio/Plug-Ins/Components "packaging/dmg/Your Mac's Component folder"
+    #     ln -s /Library/Audio/Plug-Ins/VST3 "packaging/dmg/Your Mac's VST3 folder"
+    #     mv "${{ env.VST3_PATH }}" packaging/dmg
+    #     mv "${{ env.AU_PATH }}" packaging/dmg
+    #     # mv "${{ env.STANDALONE_PATH }}" packaging/dmg
+    #     
+    #     # Create a ZIP and put files into it
+    #     cd packaging/dmg
+    #     zip -r "../${{ env.ARTIFACT_NAME }}.zip" .
 
     #    # Run appdmg to create the .dmg
     #    cd packaging && appdmg dmg.json "${{ env.ARTIFACT_NAME}}.dmg"
@@ -197,10 +209,10 @@ jobs:
     #    xcrun notarytool submit "${{ env.ARTIFACT_NAME }}.dmg" --apple-id ${{ secrets.NOTARIZATION_USERNAME }} --password ${{ secrets.NOTARIZATION_PASSWORD }} --team-id ${{ secrets.TEAM_ID }} --wait
     #    xcrun stapler staple "${{ env.ARTIFACT_NAME }}.dmg"
 
-    - name: Zip
-      if: ${{ matrix.name == 'Linux' }}
-      working-directory: ${{ env.ARTIFACTS_PATH }}
-      run: 7z a -tzip "${{ env.ARTIFACT_NAME }}.zip" .
+    # - name: Zip
+    #   if: ${{ matrix.name == 'Linux' }}
+    #   working-directory: ${{ env.ARTIFACTS_PATH }}
+    #   run: 7z a -tzip "${{ env.ARTIFACT_NAME }}.zip" .
 
     # - name: Generate Installer and Sign with EV cert on Azure (Windows)
     #   if: ${{ matrix.name == 'Windows' }}
@@ -211,26 +223,26 @@ jobs:
     #     dotnet tool install --global AzureSignTool 
     #     AzureSignTool sign -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" -kvi "${{ secrets.AZURE_CLIENT_ID }}" -kvt "${{ secrets.AZURE_TENANT_ID }}" -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ secrets.AZURE_CERT_NAME }} -tr http://timestamp.digicert.com -v "${{ env.ARTIFACTS_PATH }}/${{ env.ARTIFACT_NAME }}.exe"
 
-    - name: Upload VST3 (Windows)
-      if: ${{ matrix.name == 'Windows' }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: 'Distortion Designer.vst3.vst3'
-        path: '${{ env.VST3_PATH }}'
+    # - name: Upload VST3 (Windows)
+    #   if: ${{ matrix.name == 'Windows' }}
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: 'Distortion Designer.vst3.vst3'
+    #     path: '${{ env.VST3_PATH }}'
 
-    - name: Upload Zip (Linux)
-      if: ${{ matrix.name == 'Linux' }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ env.ARTIFACT_NAME }}.zip
-        path: '${{ env.ARTIFACTS_PATH }}/${{ env.ARTIFACT_NAME }}.zip'
+    # - name: Upload Zip (Linux)
+    #   if: ${{ matrix.name == 'Linux' }}
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: ${{ env.ARTIFACT_NAME }}.zip
+    #     path: '${{ env.ARTIFACTS_PATH }}/${{ env.ARTIFACT_NAME }}.zip'
 
-    - name: Upload DMG (macOS)
-      if: ${{ matrix.name == 'macOS' }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ env.ARTIFACT_NAME }}.zip
-        path: ${{ env.ARTIFACT_NAME }}.zip
+    # - name: Upload DMG (macOS)
+    #   if: ${{ matrix.name == 'macOS' }}
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: ${{ env.ARTIFACT_NAME }}.zip
+    #     path: ${{ env.ARTIFACT_NAME }}.zip
 
   release:
     if: contains(github.ref, 'tags/v')
