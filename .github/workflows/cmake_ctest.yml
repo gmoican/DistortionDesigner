@@ -232,6 +232,7 @@ jobs:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.ARTIFACT_NAME }}.zip
 
+  # Random comment for a test
   release:
     if: contains(github.ref, 'tags/v')
     runs-on: ubuntu-latest
