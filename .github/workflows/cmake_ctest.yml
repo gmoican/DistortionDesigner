@@ -146,14 +146,11 @@ jobs:
         7z x pluginval_${{ matrix.name }}.zip
         ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate "${{ env.VST3_PATH }}"
     
-    - name: Debug ARTIFACT_NAME
-      run: echo "ARTIFACT_NAME is $ARTIFACT_NAME"
-    
     - name: Zip build artifacts
       shell: bash
       run: |
         cd $ARTIFACTS_PATH
-        zip -r "${ ARTIFACT_NAME }" .
+        zip -r "${ ARTIFACT_NAME }.zip" .
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
